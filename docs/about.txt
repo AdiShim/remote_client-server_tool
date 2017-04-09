@@ -1,0 +1,3 @@
+ -vClient by Jonathan Gitsis and Adi Shimoni-
+      -Thank you for trying out vClient-     
+                -version 0.8-                

@@ -20,10 +20,11 @@ class MainFrame(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
         self.parent = parent
+        self.parent.protocol('WM_DELETE_WINDOW', self._safe_close)
         self.width = self.parent.winfo_screenwidth()
         self.height = self.parent.winfo_screenheight()
-        self.parent.geometry('530x650+400+10')
-        self.parent.title('VisualClient 0.7')
+        self.parent.geometry('530x615+400+10')
+        self.parent.title('VisualClient 0.8')
         self.parent.resizable(True, True)
 
         try:
@@ -44,6 +45,7 @@ class MainFrame(tk.Frame):
 
         self._button_config()
         self.parent.config(menu=self.main_menu)
+        self._menu_config()
 
         self.log_frame.pack()
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)
@@ -61,7 +63,8 @@ class MainFrame(tk.Frame):
             self.file_frame.ftf_button.focus_set()
             self.file_frame.ftf_button.invoke()
 
-        elif self.focus_get() == self.cmd_frame.cmd_entry:
+        elif self.focus_get() == self.cmd_frame.cmd_combobox:
+
             self.cmd_frame.chf_button.focus_set()
             self.cmd_frame.chf_button.invoke()
 
@@ -70,6 +73,10 @@ class MainFrame(tk.Frame):
                 event.widget.invoke()
             except:
                 pass
+
+    def _menu_config(self):
+
+        self.main_menu.option_menu.add_command(label='Clear Command History', command=self.cmd_frame.clear_cbox)
 
     def _button_config(self):
         """Configure buttons."""
@@ -84,7 +91,7 @@ class MainFrame(tk.Frame):
         tkmb.showerror('Remote Server Error',
                        'Cannot communicate with server.\nServer might have closed.',
                        type=tkmb.OK)
-        self.parent.destroy()
+        self._safe_close()
 
     def _ftf_command(self):
 
@@ -108,17 +115,13 @@ class MainFrame(tk.Frame):
 
     def _chf_command(self):
 
-        mode, cmd = self.cmd_frame.mode, self.cmd_frame.cmd_entry.get()
+        cmd = self.cmd_frame.cmd_combobox.get()
+        self.cmd_frame.update_cbox()
 
         if cmd is '':
             return None
         try:
-            if mode == 'RAW':
-                update = self.client.default_cmd(Command(cmd))
-            elif mode == 'PRESET':
-                update = ''
-            else:
-                update = ''
+            update = self.client.default_cmd(Command(cmd))
             self.output_frame.append_to_output(cmd, update)
         except:
             self._error_occurred()
@@ -127,6 +130,19 @@ class MainFrame(tk.Frame):
 
         try:
             self.client.exit_close_cmd(Command(command))
-            self.parent.destroy()
+            self._safe_close()
         except:
             self._error_occurred()
+
+    def _safe_close(self):
+
+        try:
+            self.main_menu.help_menu.manual_window.destroy()
+        except:
+            pass
+        try:
+            self.main_menu.help_menu.about_window.destroy()
+        except:
+            pass
+        finally:
+            self.parent.destroy()
