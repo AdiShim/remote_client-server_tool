@@ -1,6 +1,5 @@
 import socket
 import os.path
-# from command import Command
 
 
 class Client:
@@ -72,17 +71,17 @@ class SpecialClient(Client):
         rcode = self.recv(4096)
 
         if rcode == '1':
-            return '[-] %s is not a file type.' % (c.get_filename())
+            return '[-] "%s" is not a file type.' % (c.get_filename())
         elif rcode == '2':
-            return '[-] %s does not exist.' % (c.get_filename())
+            return '[-] "%s" does not exist.' % (c.get_filename())
         elif rcode == '0':
 
             if os.path.exists(c.get_destination()):
                 size = int(self.recv(4096))
                 self.write_to_file(self.recvall(size), c.get_destination(), c.get_filename())
-                return '[+] %s was downloaded.' % (c.get_filename())
+                return '[+] "%s" was downloaded.' % (c.get_filename())
 
-            return '[-] Destination does not exsist.'
+            return '[-] Destination does not exist.'
 
         return '[-] Unknown error occurred.'
 
@@ -91,26 +90,22 @@ class SpecialClient(Client):
 
         rcode = self.check_send(c)
         if rcode == '1':
-            return '[-] %s is not a file type.' % (c.get_path())
+            return '[-] "%s" is not a file type.' % (c.get_path())
         elif rcode == '2':
-            return '[-] %s does not exist.' % (c.get_path())
+            return '[-] "%s" does not exist.' % (c.get_path())
         elif rcode == '0':
 
             self.send(c.command)
 
             server_rcode = self.recv(4096)
             if server_rcode == '1':
-                return '[-] Destination %s does not exist.' % (c.get_destination())
+                return '[-] Destination "%s" does not exist.' % (c.get_destination())
             elif server_rcode == '0':
                 file_to_send = self.read_from_file(c.get_path())
                 self.send(len(file_to_send))
                 self.send(file_to_send)
                 if self.recv(4096) == '0':
-                    return '[+] %s was sent.' % (c.get_path())
-
-                return '[-] Unknown error occurred.'
-
-            return '[-] Unknown error occurred.'
+                    return '[+] "%s" was sent.' % (c.get_path())
 
         return '[-] Unknown error occurred.'
 

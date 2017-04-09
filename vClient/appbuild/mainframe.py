@@ -79,6 +79,13 @@ class MainFrame(tk.Frame):
         self.exit_frame.disconnect_button.config(command=partial(self._cef_command, '!EXIT'))
         self.exit_frame.close_button.config(command=partial(self._cef_command, '!CLOSE'))
 
+    def _error_occurred(self):
+
+        tkmb.showerror('Remote Server Error',
+                       'Cannot communicate with server.\nServer might have closed.',
+                       type=tkmb.OK)
+        self.parent.destroy()
+
     def _ftf_command(self):
 
         mode, src, dst = self.file_frame.mode, self.file_frame.src_entry.get(), self.file_frame.dst_entry.get()
@@ -97,10 +104,7 @@ class MainFrame(tk.Frame):
             else:
                 pass
         except:
-            tkmb.showerror('Remote Server Error',
-                           'Cannot communicate with server.\nServer might have closed.',
-                           type=tkmb.OK)
-            self.parent.destroy()
+            self._error_occurred()
 
     def _chf_command(self):
 
@@ -117,17 +121,12 @@ class MainFrame(tk.Frame):
                 update = ''
             self.output_frame.append_to_output(cmd, update)
         except:
-            tkmb.showerror('Remote Server Error',
-                           'Cannot communicate with server.\nServer might have closed.',
-                           type=tkmb.OK)
-            self.parent.destroy()
+            self._error_occurred()
 
     def _cef_command(self, command):
 
         try:
             self.client.exit_close_cmd(Command(command))
+            self.parent.destroy()
         except:
-            tkmb.showerror('Remote Server Error',
-                           'Cannot communicate with server.\nServer might have closed.',
-                           type=tkmb.OK)
-        self.parent.destroy()
+            self._error_occurred()

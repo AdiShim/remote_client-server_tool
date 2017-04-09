@@ -48,12 +48,12 @@ class MainFrame(tk.Frame):
 
         seconds = minutes = hours = 0
         while self.server.on:
-            self.uptime_value.set('{}:{}'.format(minutes, seconds))
+            self.uptime_value.set('{}:{}:{}'.format(hours, minutes, seconds))
             time.sleep(1)
             seconds += 1
             if not seconds % 60:
                 seconds = 0
                 minutes += 1
-            if not minutes % 60:
-                minutes = 0
-                hours += 1
+                if not minutes % 60:
+                    minutes = 0
+                    hours += 1
