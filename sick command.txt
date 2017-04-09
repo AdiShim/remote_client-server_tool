@@ -1,0 +1,1 @@
+cd C:\Python27 && python -c "from tkMessageBox import *; [showwarning('Hacked!', 'You got hacked.', type=OK) for i in range(5)]"
